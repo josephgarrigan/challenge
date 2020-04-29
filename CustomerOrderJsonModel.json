@@ -1,0 +1,23 @@
+[
+  {
+    'repeat(5, 10)': {
+  		"Customer": {
+          "Name": '{{firstName()}} {{surname()}}',
+          "CardAddress": '{{integer(100,19999)}} {{street()}}, {{city()}}, {{state()}}, {{integer(10000,66666)}}',
+          "Order": {
+              "ShippingAddress": '{{integer(100,19999)}} {{street()}}, {{city()}}, {{state()}}, {{integer(10000,66666)}}',
+              "OrderDescription": '{{lorem(1,"sentence")}}',
+              "OrderItems": [{
+              'repeat(1,5)':{
+                  "Item1": {
+                  "Name": '{{lorem(1, "words")}}',
+                  "Quantity": '{{integer(1,10)}}',
+                  "CostPerItem": '{{integer(1,10)}}.{{integer(10,99)}}'
+                  }
+              }
+          }]
+		}
+  	}
+  }
+  }
+]
