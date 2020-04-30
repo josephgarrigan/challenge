@@ -6,7 +6,7 @@ class Address extends baseModel
   protected $street = null;
   protected $street2 = null;
   protected $city = null;
-  protected $stateAbbr = null;
+  protected $state = null;
   protected $zip = null;
   protected $active = 0;
   protected $createDate = null;
@@ -44,9 +44,9 @@ class Address extends baseModel
     }
     return $this;
   }
-  public function setStateAbbr ($value) {
+  public function setState ($value) {
     if (!is_null($value)) {
-      $this->stateAbbr = $value;
+      $this->state = $value;
     }
     return $this;
   }
@@ -91,9 +91,9 @@ class Address extends baseModel
   {
     return $this->city;
   }
-  public function getStateAbbr ()
+  public function getState ()
   {
-    return $this->stateAbbr();
+    return $this->state;
   }
   public function getZip()
   {
@@ -118,7 +118,7 @@ class Address extends baseModel
       $this->getStreet(),
       $this->getStreet2(),
       $this->getCity(),
-      $this->getStateAbbr(),
+      $this->getState(),
       $this->getZip()
     ];
   }
@@ -129,7 +129,7 @@ class Address extends baseModel
       $this->getStreet(),
       $this->getStreet2(),
       $this->getCity(),
-      $this->getStateAbbr(),
+      $this->getState(),
       $this->getZip()
     ];
   }

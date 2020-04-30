@@ -82,5 +82,10 @@ class database {
     }
     return $result;
   }
+
+  public function getLastInsertID()
+  {
+    return $this->db->lastinsertID();
+  }
 }
 ?>

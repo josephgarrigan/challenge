@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address` (
   `Street` VARCHAR(255) NOT NULL,
   `Street2` VARCHAR(255) NULL,
   `City` VARCHAR(100) NOT NULL,
-  `StateAbbr` VARCHAR(2) NOT NULL,
+  `State` VARCHAR(100) NOT NULL,
   `Zip` VARCHAR(10) NOT NULL,
   `Active` TINYINT NOT NULL DEFAULT 1,
   `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address_txn` (
   `Street` varchar(255) not null,
   `Street2` varchar(255) null,
   `City` varchar(100) not null,
-  `StateAbbr` varchar(2) not null,
+  `State` VARCHAR(100) not null,
   `Zip` varchar(10) not null,
   `Active` TINYINT NOT NULL DEFAULT 1,
   `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
@@ -140,7 +140,7 @@ CREATE TRIGGER address_txn_trigger
       Street,
       Street2,
       City,
-      StateAbbr,
+      State,
       Zip,
       Active,
       CreateDate,
@@ -150,7 +150,7 @@ CREATE TRIGGER address_txn_trigger
       old.Street,
       old.Street2,
       old.City,
-      old.StateAbbr,
+      old.State,
       old.Zip,
       old.Active,
       old.CreateDate,
@@ -215,7 +215,7 @@ ENGINE = InnoDB;
 
 -- ----------------------------------------------------
 -- Table `CustomerOrders`.`OrderDetails`
--- ---------------------------------------------------- 
+-- ----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `CustomerOrders`.`OrderDetails` (
   `OrderDetailsID` INT NOT NULL AUTO_INCREMENT,
   `OrderID` INT NOT NULL,
@@ -371,13 +371,13 @@ DETERMINISTIC
 BEGIN
 	DECLARE addressID INT;
     SET addressID = (
-		SELECT 
-			AddressID 
+		SELECT
+			AddressID
 		FROM CustomerAddressXRef
         WHERE CustomerID = customerID
     );
     RETURN addressID;
-END || 
+END ||
 
 CREATE FUNCTION getCustomerOrderCount (
 	customerID INT
@@ -387,7 +387,7 @@ BEGIN
 	DECLARE count INT;
     SET count = (
 		SELECT
-			COUNT(OrderID) 
+			COUNT(OrderID)
 		FROM Orders
         WHERE CustomerID = customerID
     );
@@ -424,19 +424,19 @@ CREATE PROCEDURE newOrderDetail(
     IN qty INT,
     IN cost DECIMAL(12,2)
 )
-BEGIN 
+BEGIN
 	INSERT INTO OrderDetails (OrderID, Name, Qty, Cost) VALUES (QUOTE(orderID), QUOTE(name), QUOTE(qty), QUOTE(cost));
-END || 
+END ||
 
 CREATE PROCEDURE newAddress(
   IN street VARCHAR(255),
   IN street2 VARCHAR(255),
   IN city VARCHAR(255),
-  IN stateAbbr VARCHAR(255),
+  IN State VARCHAR(255),
   IN zip VARCHAR(255)
 )
 BEGIN
-	insert into Address (Street,Street2,City,StateAbbr,Zip) VALUES (QUOTE(street),QUOTE(street2),QUOTE(city),QUOTE(stateAbbr),QUOTE(zip));
+	insert into Address (Street,Street2,City,State,Zip) VALUES (QUOTE(street),QUOTE(street2),QUOTE(city),QUOTE(State),QUOTE(zip));
 end ||
 
 CREATE PROCEDURE newCustomerAddressXref(
@@ -484,8 +484,8 @@ CREATE PROCEDURE updateOrderDetails(
     IN qty INT,
     IN cost DECIMAL(12,2)
 )
-BEGIN 
-	UPDATE OrderDetails 
+BEGIN
+	UPDATE OrderDetails
 		SET Name = QUOTE(name),
 			Qty = QUOTE(qty),
             COST = QUOTE(cost)
@@ -497,7 +497,7 @@ CREATE PROCEDURE updateAddress (
   IN street VARCHAR(255),
   IN street2 VARCHAR(255),
   IN city VARCHAR(255),
-  IN stateAbbr VARCHAR(2),
+  IN State VARCHAR(100),
   IN zip VARCHAR(10)
 )
 BEGIN
@@ -506,7 +506,7 @@ BEGIN
   		Street = QUOTE(street),
   		Street2 = QUOTE(street2),
   		City = QUOTE(city),
-  		StateAbbr = QUOTE(stateAbbr),
+  		State = QUOTE(State),
   		Zip = QUOTE(zip)
   WHERE AddressID = QUOTE(addressID);
 END ||
@@ -567,7 +567,7 @@ BEGIN
   UPDATE Orders
     SET Active = 0
   WHERE OrderID = orderID;
-  UPDATE OrderDetails 
+  UPDATE OrderDetails
 	SET Active = 0
   WHERE OrderID = orderID;
 END ||
@@ -639,13 +639,13 @@ BEGIN
     *
   FROM Address
   WHERE AddressID = addressID;
-END || 
+END ||
 
 CREATE PROCEDURE getOrderMetaDataByID (
 IN orderID INT
 )
-BEGIN  
-  SELECT 
+BEGIN
+  SELECT
     Orders.OrderID,
     concat(
       Customers.FName,
@@ -659,7 +659,7 @@ BEGIN
       ', ',
       Address.City,
       ', ',
-      Address.stateAbbr,
+      Address.State,
       ', ',
       Address.zip
     ) as address
