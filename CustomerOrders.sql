@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Customers` (
   `Email` VARCHAR(255) NOT NULL,
   `Active` TINYINT NOT NULL DEFAULT 1,
   `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
-  `UpdateDate` DATETIME NULL DEFAULT NULL
+  `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`CustomerID`),
   UNIQUE INDEX `CustomerID_UNIQUE` (`CustomerID` ASC))
 ENGINE = InnoDB;
@@ -49,12 +49,13 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Customers_txn` (
   `CreateDate` DATETIME NOT NULL,
   `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`CustomerTXNID`),
-  UNIQUE INDEX `CustomerTXNID_UNIQUE` (`CustomerTXNID` ASC)),
+  UNIQUE INDEX `CustomerTXNID_UNIQUE` (`CustomerTXNID` ASC),
   CONSTRAINT `fk_customerorders`
     FOREIGN KEY (`CustomerID`)
     REFERENCES `CustomerOrders`.`Customers` (`CustomerID`)
-    ON DELETE NO ACTION,
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -96,9 +97,10 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address` (
   `Zip` VARCHAR(10) NOT NULL,
   `Active` TINYINT NOT NULL DEFAULT 1,
   `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
-  `UpdateDate` DATETIME NULL DEFAULT NULL
+  `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`AddressID`),
-  UNIQUE INDEX `AdressID_UNIQUE` (`AddressID` ASC))
+  UNIQUE INDEX `AdressID_UNIQUE` (`AddressID` ASC)
+)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -115,14 +117,15 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address_txn` (
   `Zip` varchar(10) not null,
   `Active` TINYINT NOT NULL DEFAULT 1,
   `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
-  `UpdateDate` DATETIME NULL DEFAULT NULL
+  `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`AddressTXNID`),
-  UNIQUE INDEX `AdressTXNID_UNIQUE` (`AddressTXNID` ASC))
+  UNIQUE INDEX `AdressTXNID_UNIQUE` (`AddressTXNID` ASC),
   CONSTRAINT `fk_customerorders`
     FOREIGN KEY (`AddressID`)
     REFERENCES `CustomerOrders`.`Address` (`AddressID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -201,13 +204,13 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders` (
     FOREIGN KEY (`CustomerID`)
     REFERENCES `CustomerOrders`.`Customers` (`CustomerID`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_customerorders`
     FOREIGN KEY (`AddressID`)
 		REFERENCES `CustomerOrders`.`Address` (`AddressID`)
 		ON DELETE NO ACTION
 		ON UPDATE NO ACTION
-  )
+)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -228,7 +231,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders_txn` (
   PRIMARY KEY (`OrderTXNID`),
   UNIQUE INDEX `idTXNOrders_UNIQUE` (`OrderTXNID` ASC),
   INDEX `fk_customerorders_idx` (`OrdersID` ASC),
-  INDEX `fk_customerorders_idx` (`CustomerID` ASC)
+  INDEX `fk_customerorders_idx` (`CustomerID` ASC),
   CONSTRAINT `fk_customerorders`
     FOREIGN KEY (`OrderID`)
     REFERENCES `CustomerOrders`.`Orders` (`OrdersID`)
@@ -238,13 +241,13 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders_txn` (
     FOREIGN KEY (`CustomerID`)
     REFERENCES `CustomerOrders`.`Customers` (`CustomerID`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_customerorders`
     FOREIGN KEY (`AddressID`)
 		REFERENCES `CustomerOrders`.`Address` (`AddressID`)
 		ON DELETE NO ACTION
 		ON UPDATE NO ACTION
-  )
+)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -305,15 +308,11 @@ CREATE PROCEDURE newOrder(
   IN addressID INT
 )
 BEGIN
-	INSERT INTO Orders
-  (
-    Description,
-    CustomerID,
-    AddressID,
-	) VALUES (
+	INSERT INTO Orders (Description, CustomerID, AddressID)
+	VALUES (
 		description,
-    customerID,
-    addressID
+		customerID,
+		addressID
 	);
 END ||
 
@@ -422,7 +421,7 @@ CREATE PROCEDURE orderStatusAccepted (
 )
 BEGIN
   UPDATE Orders
-    SET Status = 'Accepted'
+    SET Status = 'Accepted',
         Alert = 0
   WHERE OrderID = orderID;
 END ||
@@ -432,7 +431,7 @@ CREATE PROCEDURE orderStatusPrepared (
 )
 BEGIN
   UPDATE Orders
-    SET Status = 'Prepared'
+    SET Status = 'Prepared',
         Alert = 0
   WHERE OrderID = orderID;
 END ||
@@ -442,7 +441,7 @@ CREATE PROCEDURE orderStatusShipped (
 )
 BEGIN
   UPDATE Orders
-    SET Status = 'Shipped'
+    SET Status = 'Shipped',
         Alert = 0
   WHERE OrderID = orderID;
 END ||
@@ -476,7 +475,7 @@ BEGIN
 END ||
 
 CREATE PROCEDURE deleteCustomerAddressXRef (
-  IN customerID INT
+  IN customerID INT,
   IN addressID INT
 )
 BEGIN
@@ -517,21 +516,21 @@ BEGIN
 END || 
 
 CREATE PROCEDURE getOrderMetaDataByID (
-  IN orderID INT
+IN orderID INT
 )
-BEGIN
-  SELECT
+BEGIN  
+  SELECT 
     Orders.OrderID,
     concat(
-      Customer.FName,
+      Customers.FName,
       ' ',
-      Customer.LName
+      Customers.LName
     ) as name,
     concat(
       Address.Street,
       ' ',
       Address.Street2,
-      ', '
+      ', ',
       Address.City,
       ', ',
       Address.stateAbbr,
@@ -566,11 +565,24 @@ CREATE VIEW ActiveOrders AS
     *
   FROM Orders
   WHERE Active = 1;
-  CREATE VIEW ActiveOrders AS
-    SELECT
-      *
-    FROM Orders
-    WHERE Active = 1;
+
+CREATE VIEW InactiveOrders AS
+	SELECT
+	*
+	FROM Orders
+	WHERE Active = 0;
+
+CREATE VIEW ActiveAddress AS
+  SELECT
+    *
+  FROM Address
+  WHERE Active = 1;
+
+CREATE VIEW InactiveAddress AS
+	SELECT
+	  *
+	FROM Address
+	WHERE Active = 0;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
