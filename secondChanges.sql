@@ -26,7 +26,7 @@ create procedure updateCustomerAddressXrefByName(
 begin
   update CustomerAddressXref
     set CustomerID = customerID,
-    set AddressID = addressID
+    AddressID = addressID
   where Name = name;
 end ||
 create procedure deleteCustomer( IN customerID INT )
@@ -47,7 +47,7 @@ begin
 end ||
 
 create procedure order_info_by_id ( IN orderID INT )
-  begin
+  as 
     select
       Orders.OrderID,
       concat(
@@ -70,5 +70,4 @@ create procedure order_info_by_id ( IN orderID INT )
       join Customers on Orders.CustomerID = Customers.CustomerID
       join Address on Orders.AddressID = Address.AddressID
     where Orders.OrderID = orderID;
-  end ||
 delimiter ;
