@@ -47,7 +47,7 @@ begin
 end ||
 
 create procedure order_info_by_id ( IN orderID INT )
-  as 
+  as
     select
       Orders.OrderID,
       concat(

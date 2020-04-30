@@ -1,24 +1,24 @@
 use CustomerOrders;
-alter table Customers 
+alter table Customers
 	add column active tinyint default 1,
     add column createDate datetime not null default now(),
     add column updateDate datetime null default null;
-    
-alter table Orders 
+
+alter table Orders
 	add column AddressID INT NOT NULL,
-    add index ind_addrId (AddressID),  
+    add index ind_addrId (AddressID),
 	add FOREIGN KEY (`AddressID`)
 		REFERENCES `CustomerOrders`.`Address` (`AddressID`)
 		ON DELETE NO ACTION
 		ON UPDATE NO ACTION;
-        
-alter table Address 
+
+alter table Address
 	add column Street varchar(255) not null,
     add column Street2 varchar(255) null,
-    add column City varchar(100) not null, 
+    add column City varchar(100) not null,
     add column stateAbbr varchar(2) not null,
     add column zip varchar(10) not null;
-    
+
 CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Customers_txn` (
   `CustomerTXNID` INT NOT NULL AUTO_INCREMENT,
   `CustomerID` INT NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address_txn` (
   `AddressID` INT NOT NULL,
   `Street` varchar(255) not null,
   `Street2` varchar(255) null,
-  `City` varchar(100) not null, 
+  `City` varchar(100) not null,
   `stateAbbr` varchar(2) not null,
   `zip` varchar(10) not null,
   PRIMARY KEY (`AddressTXNID`),
@@ -67,7 +67,7 @@ ENGINE = InnoDB;
 delimiter ||
 CREATE TRIGGER address_txn_trigger
 	before update
-		on Address for each row 
+		on Address for each row
 	insert into Address_txn (
 		AddressID,
         Street,
@@ -86,9 +86,9 @@ CREATE TRIGGER address_txn_trigger
     );
 
 CREATE TRIGGER customer_txn_trigger
-	before update 
-		on Customers for each row 
-	insert into Customers_txn 
+	before update
+		on Customers for each row
+	insert into Customers_txn
 		(
 			CustomerID,
             FName,
@@ -104,7 +104,7 @@ CREATE TRIGGER customer_txn_trigger
             old.active,
             old.createDate
 		);
-        
+
 CREATE TRIGGER order_txn_trigger
 	before update
 		on Orders for each row
@@ -121,14 +121,14 @@ CREATE TRIGGER order_txn_trigger
             old.AddressID
         );
 
-delimiter || 
+delimiter ||
 create procedure newCustomer(
     IN fName VARCHAR(45),
     IN lName VARCHAR(45),
     IN email VARCHAR(255)
 )
-begin 
-	insert into Customers 
+begin
+	insert into Customers
     (
         FName,
         LName,
@@ -138,13 +138,13 @@ begin
         lName,
         email
     );
-end || 
+end ||
 create procedure newOrder(
     IN description VARCHAR(255),
     IN customerID INT,
     IN addressID INT
 )
-begin 
+begin
 	insert into Orders (
         Description,
         CustomerID,
@@ -162,9 +162,9 @@ create procedure newAddress(
     IN StateAbbr VARCHAR(255),
     IN Zip VARCHAR(255)
 )
-begin 
-	insert into Address 
-    (	
+begin
+	insert into Address
+    (
 		Street,
         Street2,
         City,
@@ -183,7 +183,7 @@ create procedure newCustomerAddressXref(
     IN addressID INT,
 	IN name VARCHAR(255)
 )
-begin 
+begin
 	insert into CustomerAddressXref
     (
 		CustomerID,
@@ -198,11 +198,11 @@ end ||
 create procedure updateCustomer(
 	IN customerID INT,
     IN fName VARCHAR(255),
-    IN lName VARCHAR(255), 
+    IN lName VARCHAR(255),
     IN email VARCHAR(255)
-) 
-begin 
-	update Customer 
+)
+begin
+	update Customer
 		set FName = fName,
         LName = lName,
 		Email = email,
@@ -215,7 +215,7 @@ create procedure updateOrder(
     IN customerID INT,
     IN addressID INT
 ) begin
-	update Orders 
+	update Orders
 		set Description = _desc,
         CustomerID = customerID,
         AddressID = addressID
