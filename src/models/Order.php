@@ -117,4 +117,34 @@ class Order extends baseModel
   {
     return $this->updateDate;
   }
+
+  public function getNewParams ()
+  {
+    return [
+      $this->getDescription(),
+      $this->getCustomerID(),
+      $this->getAddressID()
+    ];
+  }
+  public function getEditParams()
+  {
+    return [
+      $this->getOrderID(),
+      $this->getDescription(),
+      $this->getCustomerID(),
+      $this->getAddressID()
+    ];
+  }
+  public function getRemoveParams()
+  {
+    return [
+      $this->getOrderID()
+    ];
+  }
+  public function getFetchParams()
+  {
+    return [
+      $this->getOrderID()
+    ];
+  }
 }

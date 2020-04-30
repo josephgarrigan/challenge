@@ -3,9 +3,13 @@
 class baseModel
 {
   protected $new = '';
+  protected $newParams = array();
   protected $edit = '';
+  protected $editParams = array();
   protected $remove = '';
+  protected $removeParams = array();
   protected $fetch = '';
+  protected $fetchParams = array();
 
   public function getNew()
   {
@@ -52,5 +56,64 @@ class baseModel
     return $this;
   }
 
+  public function getNewParams()
+  {
+    return $this->newParams;
+  }
+  public function getEditParams()
+  {
+    return $this->editParams;
+  }
+  public function getRemoveParams()
+  {
+    return $this->removeParams;
+  }
+  public function getFetchParams()
+  {
+    return $this->fetchParams;
+  }
+  public function setNewParams ($value  = [])
+  {
+    if (!empty($value)) {
+      $this->newParams = $value;
+    }
+    return $this;
+  }
+  public function setEditParams ($value  = [])
+  {
+    if (!empty($value)) {
+      $this->editParams = $value;
+    }
+    return $this;
+  }
+  public function setRemoveParams ($value  = [])
+  {
+    if (!empty($value)) {
+      $this->removeParams = $value;
+    }
+    return $this;
+  }
+  public function setFetchParams ($value  = [])
+  {
+    if (!empty($value)) {
+      $this->fetchParams = $value;
+    }
+    return $this;
+  }
+
+  public function internalize ($data = []) {
+    if (is_array($data)) {
+      $data = (object)$data;
+    }
+    if (!empty($data)) {
+      foreach ($data as $k => $v) {
+        if (property_exists($this, ucfirst($k))) {
+          $method = "set".ucfirst($k);
+          $this->{$method}($v);
+        }
+      }
+    }
+    return $this;
+  }
 }
 ?>

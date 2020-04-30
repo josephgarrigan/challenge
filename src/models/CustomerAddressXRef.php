@@ -32,4 +32,31 @@ class CustomerAddressXRef extends baseModel
     }
     return $this;
   }
+
+  public function getNewParams ()
+  {
+    return [
+      $this->getCustomerID(),
+      $this->getAddressID(),
+      $this->getName()
+    ];
+  }
+  public function getEditParams()
+  {
+    return [];
+  }
+  public function getRemoveParams()
+  {
+    return [
+      $this->getCustomerID(),
+      $this->getAddressID()
+    ];
+  }
+  public function getFetchParams()
+  {
+    return [
+      $this->getCustomerID(),
+      $this->getAddressID()
+    ];
+  }
 }

@@ -21,48 +21,48 @@ class app
     $this->db->init();
   }
 
-  public function add($type, $data)
+  public function getCustomer()
   {
-    $model = null;
+    return new Customer();
+  }
+  public function getOrder()
+  {
+    return new Order();
+  }
+  public function getAddress()
+  {
+    return new Address();
+  }
+  public function getCustomerAddressXRef()
+  {
+    return new CustomerAddressXRef();
+  }
+
+  public function run($state,$model)
+  {
+    $method = null;
     $params = [];
-    switch ($type) {
-      case 'customer':
-        $model = new Customer();
-        $params = [
-          $data->fName,
-          $data->lName,
-          $data->email
-        ];
+    switch ($state) {
+      case 'new':
+        $method = $model->getNew();
+        $params = $model->getNewParams();
         break;
-      case 'order':
-        $model = new Order();
-        $params = [
-          $data->description,
-          $data->customerID,
-          $data->addressID
-        ]
+      case 'edit':
+        $method = $model->getEdit();
+        $params = $model->getEditParams();
         break;
-      case 'customerAddress':
-        $model = new CustomerAddressXRef();
-        $params = [
-          $data->customerID,
-          $data->addressID,
-          $data->name
-        ];
+      case 'remove':
+        $method = $model->getRemove();
+        $params = $model->getRemoveParams();
         break;
-      case 'address':
-        $model = new Address();
-        $params = [
-          $data->street,
-          $data->street2,
-          $data->city,
-          $data->stateAbbr,
-          $data->zip
-        ];
+      case 'fetch':
+        $method = $model->getFetch();
+        $params = $model->getFetchParams();
         break;
     }
-    if (!is_null($model)) {
-      $this->db->run($model->getNew(),$params);
+    if (!is_null($method) && !empty($params)) {
+      $this->db->run($method,$params);
     }
+    reutrn $this;
   }
 }

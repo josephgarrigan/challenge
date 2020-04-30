@@ -6,6 +6,7 @@ class Address extends baseModel
   protected $street = null;
   protected $street2 = null;
   protected $city = null;
+  protected $stateAbbr = null;
   protected $zip = null;
   protected $active = 0;
   protected $createDate = null;
@@ -40,6 +41,12 @@ class Address extends baseModel
   public function setCity ($value) {
     if (!is_null($value)) {
       $this->city = $value;
+    }
+    return $this;
+  }
+  public function setStateAbbr ($value) {
+    if (!is_null($value)) {
+      $this->stateAbbr = $value;
     }
     return $this;
   }
@@ -84,6 +91,10 @@ class Address extends baseModel
   {
     return $this->city;
   }
+  public function getStateAbbr ()
+  {
+    return $this->stateAbbr();
+  }
   public function getZip()
   {
     return $this->zip;
@@ -99,5 +110,39 @@ class Address extends baseModel
   public function getUpdateDate()
   {
     return $this->updateDate;
+  }
+
+  public function getNewParams ()
+  {
+    return [
+      $this->getStreet(),
+      $this->getStreet2(),
+      $this->getCity(),
+      $this->getStateAbbr(),
+      $this->getZip()
+    ];
+  }
+  public function getEditParams()
+  {
+    return [
+      $this->getAddressID(),
+      $this->getStreet(),
+      $this->getStreet2(),
+      $this->getCity(),
+      $this->getStateAbbr(),
+      $this->getZip()
+    ];
+  }
+  public function getRemoveParams()
+  {
+    return [
+      $this->getAddressID()
+    ];
+  }
+  public function getFetchParams()
+  {
+    return [
+      $this->getAddressID()
+    ];
   }
 }

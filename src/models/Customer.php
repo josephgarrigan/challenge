@@ -95,6 +95,36 @@ class Customer extends baseModel
   {
     return $this->updateDate;
   }
+
+  public function getNewParams ()
+  {
+    return [
+      $this->getFName(),
+      $this->getLName(),
+      $this->getEmail()
+    ];
+  }
+  public function getEditParams()
+  {
+    return [
+      $this->getCustomerID(),
+      $this->getFName(),
+      $this->getLName(),
+      $this->getEmail()
+    ];
+  }
+  public function getRemoveParams()
+  {
+    return [
+      $this->getCustomerID()
+    ];
+  }
+  public function getFetchParams()
+  {
+    return [
+      $this->getCustomerID()
+    ];
+  }
 }
 
  ?>
