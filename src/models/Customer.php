@@ -60,12 +60,6 @@ class Customer extends baseModel
     }
     return $this;
   }
-  public function setFName ($value) {
-    if (!is_null($value)) {
-      $this->fName = $value;
-    }
-    return $this;
-  }
 
   public function getCustomerID()
   {

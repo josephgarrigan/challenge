@@ -26,13 +26,13 @@ class Order extends baseModel
     }
     return $this;
   }
-  public function setdescription ($value) {
+  public function setDescription ($value) {
     if (!is_null($value)) {
       $this->description = $value;
     }
     return $this;
   }
-  public function setcustomerID ($value) {
+  public function setCustomerID ($value) {
     if (!is_null($value)) {
       $this->customerID = $value;
     }
@@ -44,13 +44,13 @@ class Order extends baseModel
     }
     return $this;
   }
-  public function setstatus ($value) {
+  public function setStatus ($value) {
     if (!is_null($value)) {
       $this->status = $value;
     }
     return $this;
   }
-  public function setalert ($value) {
+  public function setAlert ($value) {
     if (!is_null($value)) {
       $this->alert = $value;
     }
@@ -71,12 +71,6 @@ class Order extends baseModel
   public function setUpdateDate ($value) {
     if (!is_null($value)) {
       $this->updateDate = $value;
-    }
-    return $this;
-  }
-  public function setdescription ($value) {
-    if (!is_null($value)) {
-      $this->description = $value;
     }
     return $this;
   }

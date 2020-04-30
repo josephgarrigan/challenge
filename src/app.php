@@ -63,6 +63,6 @@ class app
     if (!is_null($method) && !empty($params)) {
       $this->db->run($method,$params);
     }
-    reutrn $this;
+    return $this;
   }
 }
