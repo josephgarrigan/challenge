@@ -1,6 +1,6 @@
 <?php
 
-class Address
+class CustomerAddressXRef extends baseModel
 {
   protected $customerID = null;
   protected $addressID = null;

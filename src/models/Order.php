@@ -1,6 +1,6 @@
 <?php
 
-class Address
+class Order extends baseModel
 {
   protected $orderID = null;
   protected $description = null;

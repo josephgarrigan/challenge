@@ -1,6 +1,6 @@
 <?php
 
-class Customer
+class Customer extends baseModel
 {
   protected $customerID = null;
   protected $fName = null;
@@ -12,7 +12,10 @@ class Customer
 
   public function __construct()
   {
-    //
+    $this->setNew();
+    $this->setEdit();
+    $this->setRemove();
+    $this->setFetch();
   }
 
   public function setCustomerID ($value) {
