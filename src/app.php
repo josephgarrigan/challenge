@@ -20,4 +20,49 @@ class app
     );
     $this->db->init();
   }
+
+  public function add($type, $data)
+  {
+    $model = null;
+    $params = [];
+    switch ($type) {
+      case 'customer':
+        $model = new Customer();
+        $params = [
+          $data->fName,
+          $data->lName,
+          $data->email
+        ];
+        break;
+      case 'order':
+        $model = new Order();
+        $params = [
+          $data->description,
+          $data->customerID,
+          $data->addressID
+        ]
+        break;
+      case 'customerAddress':
+        $model = new CustomerAddressXRef();
+        $params = [
+          $data->customerID,
+          $data->addressID,
+          $data->name
+        ];
+        break;
+      case 'address':
+        $model = new Address();
+        $params = [
+          $data->street,
+          $data->street2,
+          $data->city,
+          $data->stateAbbr,
+          $data->zip
+        ];
+        break;
+    }
+    if (!is_null($model)) {
+      $this->db->run($model->getNew(),$params);
+    }
+  }
 }
