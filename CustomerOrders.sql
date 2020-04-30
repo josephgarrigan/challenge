@@ -213,6 +213,29 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders` (
 )
 ENGINE = InnoDB;
 
+-- ----------------------------------------------------
+-- Table `CustomerOrders`.`OrderDetails`
+-- ---------------------------------------------------- 
+CREATE TABLE IF NOT EXISTS `CustomerOrders`.`OrderDetails` (
+  `OrderDetailsID` INT NOT NULL AUTO_INCREMENT,
+  `OrderID` INT NOT NULL,
+  `Name` VARCHAR(255) NULL,
+  `Qty` INT NOT NULL,
+  `Cost` DECIMAL(12,2) NOT NULL,
+  `Active` TINYINT DEFAULT 1,
+  `CreateDate` DATETIME NOT NULL,
+  `UpdateDate` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`OrderDetailsID`),
+  UNIQUE INDEX `idOrders_UNIQUE` (`OrderID` ASC),
+  INDEX `fk_orderORdID` (`OrderID` ASC),
+  CONSTRAINT `fk_orderDetailord`
+    FOREIGN KEY (`OrderID`)
+    REFERENCES `CustomerOrders`.`Orders` (`OrderID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = InnoDB;
+
 -- -----------------------------------------------------
 -- Table `CustomerOrders`.`Orders_txn`
 -- This is used to track changes to Orders
@@ -251,6 +274,37 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders_txn` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `CustomerOrders`.`OrdersDetails_txn`
+-- This is used to track changes to Orders
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `CustomerOrders`.`OrdersDetails_txn` (
+  `OrderDetailTXNID` INT NOT NULL AUTO_INCREMENT,
+  `OrderDetailsID` INT NOT NULL,
+  `OrderID` INT NOT NULL,
+  `Name` VARCHAR(255) NULL,
+  `Qty` INT NOT NULL,
+  `Cost` DECIMAL(12,2) NOT NULL,
+  `Active` TINYINT,
+  `CreateDate` DATETIME NOT NULL,
+  `UpdateDate` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`OrderDetailTXNID`),
+  UNIQUE INDEX `idTXNOrders_UNIQUE` (`OrderDetailTXNID` ASC),
+  INDEX `fk_customerorders_idx` (`OrderID` ASC),
+  INDEX `fk_orderDetails_idx` (`OrderDetailsID` ASC),
+  CONSTRAINT `fk_ordersorderDetail`
+    FOREIGN KEY (`OrderDetailsID`)
+    REFERENCES `CustomerOrders`.`OrderDetails` (`OrderDetailsID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_txnOrderID`
+    FOREIGN KEY (`OrderID`)
+    REFERENCES `CustomerOrders`.`Orders` (`OrderID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Trigger to populate Transaction table
 -- -----------------------------------------------------
 CREATE TRIGGER order_txn_trigger
@@ -275,6 +329,35 @@ CREATE TRIGGER order_txn_trigger
       old.Active,
       old.Status,
       old.Alert,
+      old.CreateDate,
+      old.UpdateDate
+    );
+
+delimiter ||
+
+-- -----------------------------------------------------
+-- Trigger to populate Transaction table
+-- -----------------------------------------------------
+CREATE TRIGGER order_detail_txn_trigger
+	BEFORE UPDATE
+		ON OrderDetails FOR EACH ROW
+	INSERT INTO OrdersDetails_txn
+	(
+	  OrderDetailsID
+	  OrderID,
+      Name,
+      Qty,
+      Cost,
+      Active
+      CreateDate,
+      UpdateDate
+    ) VALUES (
+	  old.OrderDetailsID,
+      old.OrderID,
+      old.Name,
+      old.Qty,
+      old.cost,
+      old.Active,
       old.CreateDate,
       old.UpdateDate
     );
@@ -322,16 +405,7 @@ CREATE PROCEDURE newCustomer(
   IN email VARCHAR(255)
 )
 BEGIN
-	INSERT INTO Customers
-  (
-    FName,
-    LName,
-    Email
-	) VALUES (
-    fName,
-    lName,
-    email
-  );
+	INSERT INTO Customers (FName,LName,Email) VALUES (QUOTE(fName),QUOTE(lName),QUOTE(email));
 END ||
 
 CREATE PROCEDURE newOrder(
@@ -341,58 +415,42 @@ CREATE PROCEDURE newOrder(
 )
 BEGIN
 	INSERT INTO Orders (Description, CustomerID, AddressID)
-	VALUES (
-		description,
-		customerID,
-		addressID
-	);
+	VALUES (QUOTE(description),QUOTE(customerID),QUOTE(addressID));
 END ||
 
+CREATE PROCEDURE newOrderDetail(
+	IN orderID INT,
+    IN name VARCHAR(255),
+    IN qty INT,
+    IN cost DECIMAL(12,2)
+)
+BEGIN 
+	INSERT INTO OrderDetails (OrderID, Name, Qty, Cost) VALUES (QUOTE(orderID), QUOTE(name), QUOTE(qty), QUOTE(cost));
+END || 
+
 CREATE PROCEDURE newAddress(
-	IN street VARCHAR(255),
+  IN street VARCHAR(255),
   IN street2 VARCHAR(255),
   IN city VARCHAR(255),
   IN stateAbbr VARCHAR(255),
   IN zip VARCHAR(255)
 )
 BEGIN
-	insert into Address
-  (
-		Street,
-    Street2,
-    City,
-    StateAbbr,
-    Zip
-	) VALUES (
-		street,
-    street2,
-    city,
-    stateAbbr,
-    zip
-  );
+	insert into Address (Street,Street2,City,StateAbbr,Zip) VALUES (QUOTE(street),QUOTE(street2),QUOTE(city),QUOTE(stateAbbr),QUOTE(zip));
 end ||
 
 CREATE PROCEDURE newCustomerAddressXref(
-	IN customerID INT,
+  IN customerID INT,
   IN addressID INT,
-	IN name VARCHAR(255)
+  IN name VARCHAR(255)
 )
 BEGIN
-	INSERT INTO CustomerAddressXref
-  (
-		CustomerID,
-    AddressID,
-    Name
-	) VALUES (
-		customerID,
-    addressID,
-    name
-  );
+	INSERT INTO CustomerAddressXref (CustomerID,AddressID,Name) VALUES (QUOTE(customerID),QUOTE(addressID),QUOTE(name));
 END ||
 
 -- Update
 CREATE PROCEDURE updateCustomer(
-	IN customerID INT,
+  IN customerID INT,
   IN fName VARCHAR(255),
   IN lName VARCHAR(255),
   IN email VARCHAR(255)
@@ -400,14 +458,14 @@ CREATE PROCEDURE updateCustomer(
 BEGIN
 	UPDATE Customers
 		SET FName = QUOTE(fName),
-        LName = QUOTE(lName),
-				Email = QUOTE(email),
-        updateDate = NOW()
+			LName = QUOTE(lName),
+			Email = QUOTE(email),
+			UpdateDate = NOW()
 	WHERE CustomerID = customerID;
 END ||
 
 CREATE PROCEDURE updateOrder(
-	IN orderID INT,
+  IN orderID INT,
   IN _desc VARCHAR(255),
   IN customerID INT,
   IN addressID INT
@@ -415,9 +473,23 @@ CREATE PROCEDURE updateOrder(
 BEGIN
 	UPDATE Orders
 		SET Description = QUOTE(_desc),
-        CustomerID = QUOTE(customerID),
-        AddressID = QUOTE(addressID)
+			CustomerID = QUOTE(customerID),
+			AddressID = QUOTE(addressID)
 	WHERE OrderID = orderID;
+END ||
+
+CREATE PROCEDURE updateOrderDetails(
+	IN orderDetailsID INT,
+    IN name VARCHAR(255),
+    IN qty INT,
+    IN cost DECIMAL(12,2)
+)
+BEGIN 
+	UPDATE OrderDetails 
+		SET Name = QUOTE(name),
+			Qty = QUOTE(qty),
+            COST = QUOTE(cost)
+	WHERE OrderDetailsID = QUOTE(orderDetailsID);
 END ||
 
 CREATE PROCEDURE updateAddress (
@@ -431,12 +503,12 @@ CREATE PROCEDURE updateAddress (
 BEGIN
   UPDATE Address
     SET
-  		Street = street,
-  		Street2 = street2,
-  		City = city,
-  		StateAbbr = stateAbbr,
-  		Zip = zip
-  WHERE AddressID = addressID;
+  		Street = QUOTE(street),
+  		Street2 = QUOTE(street2),
+  		City = QUOTE(city),
+  		StateAbbr = QUOTE(stateAbbr),
+  		Zip = QUOTE(zip)
+  WHERE AddressID = QUOTE(addressID);
 END ||
 
 CREATE PROCEDURE orderAlerted (
@@ -495,6 +567,18 @@ BEGIN
   UPDATE Orders
     SET Active = 0
   WHERE OrderID = orderID;
+  UPDATE OrderDetails 
+	SET Active = 0
+  WHERE OrderID = orderID;
+END ||
+
+CREATE PROCEDURE deleteOrderDetails (
+  IN orderDetailsID INT
+)
+BEGIN
+  UPDATE OrderDetails
+    SET Active = 0
+  WHERE OrderDetailsID = orderDetailsID;
 END ||
 
 CREATE PROCEDURE deleteAddress (
@@ -535,6 +619,16 @@ BEGIN
     *
   FROM Orders
   WHERE OrderID = orderID;
+END ||
+
+CREATE PROCEDURE getOrderDetailsByID (
+  IN orderDetailsID INT
+)
+BEGIN
+  SELECT
+    *
+  FROM OrderDetails
+  WHERE OrderDetailsID = orderDetailsID;
 END ||
 
 CREATE PROCEDURE getAddressByID (

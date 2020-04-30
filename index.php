@@ -1,6 +1,13 @@
 <?php
 require_once "src/app.php";
 $app = new app();
-$data = json_decode(file_get_contents('InputData.json'));
-var_dump($data);
+$inputs = json_decode(file_get_contents('InputData.json'));
+
+if (!empty($inputs)) {
+  foreach ($inpus as $input) {
+    $customer = $app->getCustomer();
+    $address = $app->getAddress();
+  }
+}
+
 ?>
