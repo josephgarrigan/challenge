@@ -12,10 +12,10 @@ class Customer extends baseModel
 
   public function __construct()
   {
-    $this->setNew();
-    $this->setEdit();
-    $this->setRemove();
-    $this->setFetch();
+    $this->setNew('newCustomer');
+    $this->setEdit('updateCustomer');
+    $this->setRemove('deleteCustomer');
+    $this->setFetch('getCustomerByID');
   }
 
   public function setCustomerID ($value) {
@@ -65,6 +65,35 @@ class Customer extends baseModel
       $this->fName = $value;
     }
     return $this;
+  }
+
+  public function getCustomerID()
+  {
+    return $this->customerID;
+  }
+  public function getFName()
+  {
+    return $this->fName;
+  }
+  public function getLName()
+  {
+    return $this->lName;
+  }
+  public function getEmail()
+  {
+    return $this->email;
+  }
+  public function getActive()
+  {
+    return $this->active;
+  }
+  public function getCreateDate()
+  {
+    return $this->createDate;
+  }
+  public function getUpdateDate()
+  {
+    return $this->updateDate;
   }
 }
 

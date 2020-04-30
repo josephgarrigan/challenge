@@ -8,7 +8,10 @@ class CustomerAddressXRef extends baseModel
 
   public function __construct()
   {
-    //
+    $this->setNew('newCustomerAddressXref');
+    $this->setEdit();
+    $this->setRemove('deleteCustomerAddressXRef');
+    $this->setFetch();
   }
 
   public function setCustomerID ($value) {

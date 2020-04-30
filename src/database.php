@@ -60,5 +60,27 @@ class database {
     }
     return $this;
   }
+
+  public function run ($procedure, $params = [])
+  {
+    try {
+      $paramString = "";
+      if (!empty($params)) {
+        $paramString = implode(',',$params);
+      }
+      $stmt = $this->db->prepare("CALL $procedure ( $paramString )");
+      $counter = 0;
+      if (!empty($params)) {
+        foreach ($params as $param) {
+          $stmt->bindValue($counter, $param['value'], $param['type']);
+        }
+      }
+      $stmt->execute();
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOExcetption $e) {
+      $result = $e->getMessage();
+    }
+    return $result;
+  }
 }
 ?>

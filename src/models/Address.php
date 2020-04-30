@@ -13,7 +13,10 @@ class Address extends baseModel
 
   public function __construct()
   {
-    //
+    $this->setNew('newAddress');
+    $this->setEdit('updateAddress');
+    $this->setRemove('deleteAddress');
+    $this->setFetch('getAddressByID');
   }
 
   public function setAddressID ($value) {
@@ -64,10 +67,37 @@ class Address extends baseModel
     }
     return $this;
   }
-  public function setstreet ($value) {
-    if (!is_null($value)) {
-      $this->street = $value;
-    }
-    return $this;
+
+  public function getAddressID()
+  {
+    return $this->addressID;
+  }
+  public function getStreet()
+  {
+    return $this->street;
+  }
+  public function getStreet2()
+  {
+    return $this->street2;
+  }
+  public function getCity()
+  {
+    return $this->city;
+  }
+  public function getZip()
+  {
+    return $this->zip;
+  }
+  public function getActive()
+  {
+    return $this->active;
+  }
+  public function getCreateDate()
+  {
+    return $this->createDate;
+  }
+  public function getUpdateDate()
+  {
+    return $this->updateDate;
   }
 }

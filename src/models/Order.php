@@ -14,7 +14,10 @@ class Order extends baseModel
 
   public function __construct()
   {
-    //
+    $this->setNew('newOrder');
+    $this->setEdit('updateOrder');
+    $this->setRemove('deleteOrder');
+    $this->setFetch('getOrderByID');
   }
 
   public function setOrderID ($value) {
@@ -76,5 +79,42 @@ class Order extends baseModel
       $this->description = $value;
     }
     return $this;
+  }
+
+  public function getOrderID()
+  {
+    return $this->orderID;
+  }
+  public function getDescription()
+  {
+    return $this->description;
+  }
+  public function getCustomerID()
+  {
+    return $this->customerID;
+  }
+  public function getAddressID()
+  {
+    return $this->addressID;
+  }
+  public function getStatus()
+  {
+    return $this->status;
+  }
+  public function getAlert()
+  {
+    return $this->alert;
+  }
+  public function getActive()
+  {
+    return $this->active;
+  }
+  public function getCreateDate()
+  {
+    return $this->createDate;
+  }
+  public function getUpdateDate()
+  {
+    return $this->updateDate;
   }
 }
