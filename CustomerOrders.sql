@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Customers_txn` (
   `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`CustomerTXNID`),
   UNIQUE INDEX `CustomerTXNID_UNIQUE` (`CustomerTXNID` ASC),
-  CONSTRAINT `fk_customerorders`
+  CONSTRAINT `fk_customer`
     FOREIGN KEY (`CustomerID`)
     REFERENCES `CustomerOrders`.`Customers` (`CustomerID`)
     ON DELETE NO ACTION
@@ -65,16 +65,16 @@ CREATE TRIGGER customer_txn_trigger
 	BEFORE UPDATE
 		ON Customers FOR EACH ROW
 	INSERT INTO Customers_txn
-		(
-			CustomerID,
+	(
+	  CustomerID,
       FName,
       LName,
       Email,
       Active,
       CreateDate,
       UpdateDate
-		) VALUES (
-			old.CustomerID,
+	) VALUES (
+	  old.CustomerID,
       old.FName,
       old.LName,
       old.Email,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address` (
   `Street` VARCHAR(255) NOT NULL,
   `Street2` VARCHAR(255) NULL,
   `City` VARCHAR(100) NOT NULL,
-  `StateAbr` VARCHAR(2) NOT NULL,
+  `StateAbbr` VARCHAR(2) NOT NULL,
   `Zip` VARCHAR(10) NOT NULL,
   `Active` TINYINT NOT NULL DEFAULT 1,
   `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Address_txn` (
   `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`AddressTXNID`),
   UNIQUE INDEX `AdressTXNID_UNIQUE` (`AddressTXNID` ASC),
-  CONSTRAINT `fk_customerorders`
+  CONSTRAINT `fk_address`
     FOREIGN KEY (`AddressID`)
     REFERENCES `CustomerOrders`.`Address` (`AddressID`)
     ON DELETE NO ACTION
@@ -136,7 +136,7 @@ CREATE TRIGGER address_txn_trigger
 		ON Address FOR EACH ROW
 	INSERT INTO Address_txn
     (
-  		AddressID,
+  	  AddressID,
       Street,
       Street2,
       City,
@@ -146,7 +146,7 @@ CREATE TRIGGER address_txn_trigger
       CreateDate,
       UpdateDate
     ) VALUES (
-  		old.AddreessID,
+	  old.AddressID,
       old.Street,
       old.Street2,
       old.City,
@@ -200,12 +200,12 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders` (
   PRIMARY KEY (`OrderID`),
   UNIQUE INDEX `idOrders_UNIQUE` (`OrderID` ASC),
   INDEX `fk_customerorders_idx` (`CustomerID` ASC),
-  CONSTRAINT `fk_customerorders`
+  CONSTRAINT `fk_customerord`
     FOREIGN KEY (`CustomerID`)
     REFERENCES `CustomerOrders`.`Customers` (`CustomerID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_customerorders`
+  CONSTRAINT `fk_addressord`
     FOREIGN KEY (`AddressID`)
 		REFERENCES `CustomerOrders`.`Address` (`AddressID`)
 		ON DELETE NO ACTION
@@ -230,19 +230,19 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders_txn` (
   `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`OrderTXNID`),
   UNIQUE INDEX `idTXNOrders_UNIQUE` (`OrderTXNID` ASC),
-  INDEX `fk_customerorders_idx` (`OrdersID` ASC),
-  INDEX `fk_customerorders_idx` (`CustomerID` ASC),
-  CONSTRAINT `fk_customerorders`
+  INDEX `fk_customerorders_idx` (`OrderID` ASC),
+  INDEX `fk_customer_idx` (`CustomerID` ASC),
+  CONSTRAINT `fk_orders`
     FOREIGN KEY (`OrderID`)
-    REFERENCES `CustomerOrders`.`Orders` (`OrdersID`)
+    REFERENCES `CustomerOrders`.`Orders` (`OrderID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_customerorders`
+  CONSTRAINT `fk_customerordtxn`
     FOREIGN KEY (`CustomerID`)
     REFERENCES `CustomerOrders`.`Customers` (`CustomerID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_customerorders`
+  CONSTRAINT `fk_addressordtxn`
     FOREIGN KEY (`AddressID`)
 		REFERENCES `CustomerOrders`.`Address` (`AddressID`)
 		ON DELETE NO ACTION
@@ -257,8 +257,8 @@ CREATE TRIGGER order_txn_trigger
 	BEFORE UPDATE
 		ON Orders FOR EACH ROW
 	INSERT INTO Orders_txn
-		(
-			OrderID,
+	(
+	  OrderID,
       Description,
       CustomerID,
       AddressID,
@@ -268,7 +268,7 @@ CREATE TRIGGER order_txn_trigger
       CreateDate,
       UpdateDate
     ) VALUES (
-			old.OrderID,
+	  old.OrderID,
       old.Description,
       old.CustomerID,
       old.AddressID,
@@ -279,10 +279,42 @@ CREATE TRIGGER order_txn_trigger
       old.UpdateDate
     );
 
+delimiter ||
+
+CREATE FUNCTION getCustomerAddressID (
+	customerID INT
+) RETURNS INT
+DETERMINISTIC
+BEGIN
+	DECLARE addressID INT;
+    SET addressID = (
+		SELECT 
+			AddressID 
+		FROM CustomerAddressXRef
+        WHERE CustomerID = customerID
+    );
+    RETURN addressID;
+END || 
+
+CREATE FUNCTION getCustomerOrderCount (
+	customerID INT
+) RETURNS INT
+DETERMINISTIC
+BEGIN
+	DECLARE count INT;
+    SET count = (
+		SELECT
+			COUNT(OrderID) 
+		FROM Orders
+        WHERE CustomerID = customerID
+    );
+    return count;
+END ||
+
 -- ----------------------------------------------------
 -- Stored Procedures
 -- ----------------------------------------------------
-delimiter ||
+
 -- Create
 CREATE PROCEDURE newCustomer(
   IN fName VARCHAR(45),
