@@ -78,6 +78,7 @@ class database {
         }
         $paramString = rtrim($paramString,",");
       }
+      $string = "CALL $procedure ( $paramString )";
       $result = $this->db->query($string);
       $result = $result->fetch(PDO::FETCH_ASSOC);
     } catch (PDOExcetption $e) {
