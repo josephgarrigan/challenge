@@ -11,12 +11,7 @@ if (!empty($inputs)) {
       ->setEmail('test@email.com');
     $customer->setCustomerID($app->run('new',$customer)['customerID']);
 
-    $address = $app->getAddress();
-    $addressString = explode(',', $input->Customer->CardAddress);
-    $address->setStreet($addressString[0])
-      ->setCity($addressString[1])
-      ->setState($addressString[2])
-      ->setZip($addressString[3]);
+    $address = fillAddress($app->getAddress(),$input->Customer->CardAddress);
     $address->setAddressID($app->run('new',$address)['addressID']);
 
     $customerAddr = $app->getCustomerAddressXRef();
@@ -28,20 +23,15 @@ if (!empty($inputs)) {
     if (!empty($input->Customer->Order)) {
       $inputOrder = $input->Customer->Order;
       $order = $app->getOrder();
-      $shippingAddressString = explode(',', $inputOrder->ShippingAddress);
-      if ($shippingAddressString != $addressString) {
-        $shippingAddress = $app->getAddress();
-        $shippingAddress->setStreet($shippingAddressString[0])
-          ->setCity($shippingAddressString[1])
-          ->setState($shippingAddressString[2])
-          ->setZip($shippingAddressString[3]);
+      if ($inputOrder->ShippingAddress != $input->Customer->CardAddress) {
+        $shippingAddress = fillAddress($app->getAddress(),$inputOrder->ShippingAddress);
         $shippingAddress->setAddressID($app->run('new',$shippingAddress)['addressID']);
         $order->setAddressID($shippingAddress->getAddressID());
       } else {
         $order->setAddressID($address->getAddressID());
       }
-      $order->setCustomerID($customer->getCustomerID());
-      $order->setDescription($inputOrder->OrderDescription);
+      $order->setCustomerID($customer->getCustomerID())
+        ->setDescription($inputOrder->OrderDescription);
       if (!empty($inputOrder->OrderItems)) {
         $order->setOrderID($app->run('new', $order)['orderID']);
         foreach ($inputOrder->OrderItems as $item) {
@@ -59,5 +49,13 @@ if (!empty($inputs)) {
 
 function getName ($i, $string) {
   return explode(' ',$string)[$i];
+}
+function fillAddress($address, $string) {
+  $string = explode(',', $string);
+  $address->setStreet($string[0])
+    ->setCity($string[1])
+    ->setState($string[2])
+    ->setZip($string[3]);
+  return $address;
 }
 ?>
