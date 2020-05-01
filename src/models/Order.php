@@ -118,16 +118,15 @@ class Order extends baseModel
       $this->getCustomerID(),
       $this->getAddressID(),
       $this->getDescription(),
-      $this->getOrderID()
+      '@orderID'
     ];
   }
   public function getEditParams()
   {
     return [
-      $this->getOrderID(),
-      $this->getDescription(),
       $this->getCustomerID(),
-      $this->getAddressID()
+      $this->getAddressID(),
+      $this->getDescription()
     ];
   }
   public function getRemoveParams()

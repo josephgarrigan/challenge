@@ -13,9 +13,9 @@ class OrderDetail extends baseModel
 
   public function __construct()
   {
-    $this->setNew('newOrderDetails');
-    $this->setEdit('updateOrderDetails');
-    $this->setRemove('deleteOrderDetails');
+    $this->setNew('newOrderDetail');
+    $this->setEdit('updateOrderDetail');
+    $this->setRemove('deleteOrderDetail');
     $this->setFetch('getOrderDetailsByID');
   }
 
@@ -74,7 +74,7 @@ class OrderDetail extends baseModel
   }
   public function getName()
   {
-    return $this-name;
+    return $this->name;
   }
   public function getqty()
   {
@@ -108,7 +108,7 @@ class OrderDetail extends baseModel
       $this->getName(),
       $this->getQty(),
       $this->getCost(),
-      $this->getOrderDetailsID()
+      '@orderDetailsID'
     ];
   }
   public function getEditParams()

@@ -120,13 +120,12 @@ class Address extends baseModel
       $this->getCity(),
       $this->getState(),
       $this->getZip(),
-      $this->getAddressID()
+      '@addressID'
     ];
   }
   public function getEditParams()
   {
     return [
-      $this->getAddressID(),
       $this->getStreet(),
       $this->getStreet2(),
       $this->getCity(),

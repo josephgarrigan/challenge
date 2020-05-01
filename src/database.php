@@ -67,10 +67,17 @@ class database {
     try {
       $paramString = "";
       if (!empty($params)) {
-        $paramString = rtrim(implode(',',$params),',');
+        foreach ($params as $param) {
+          if (is_null($param)) {
+            $paramString .= "null,";
+          } else if (is_string($param) && substr($param, 0, 1) != '@') {
+            $paramString .= "'$param',";
+          } else {
+            $paramString .= "$param,";
+          }
+        }
+        $paramString = rtrim($paramString,",");
       }
-      $string = "CALL $procedure ( $paramString )";
-      echo $string . "\r\n";
       $result = $this->db->query($string);
       $result = $result->fetch(PDO::FETCH_ASSOC);
     } catch (PDOExcetption $e) {

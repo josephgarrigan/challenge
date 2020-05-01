@@ -40,7 +40,7 @@ class app
   }
   public function getOrderDetail()
   {
-    return new OrderDetails();
+    return new OrderDetaiL();
   }
 
   public function run($state,$model)
