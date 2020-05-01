@@ -13,74 +13,43 @@ if (!empty($inputs)) {
 
     $address = $app->getAddress();
     $addressString = explode(',', $input->Customer->CardAddress);
-    if (isset($addressString[0])) {
-      $address->setStreet($addressString[0]);
-    }
-    if (isset($addressString[1])) {
-      $address->setCity($addressString[1]);
-    }
-    if (isset($addressString[2])) {
-      $address->setState($addressString[2]);
-    }
-    if (isset($addressString[3])) {
-      $address->setZip($addressString[3]);
-    }
-    $test = $app->run('new',$address);
-    $address->setAddressID($test['addressID']);
+    $address->setStreet($addressString[0])
+      ->setCity($addressString[1])
+      ->setState($addressString[2])
+      ->setZip($addressString[3]);
+    $address->setAddressID($app->run('new',$address)['addressID']);
 
     $customerAddr = $app->getCustomerAddressXRef();
-    $customerAddr
-      ->setCustomerID($customer->getCustomerID())
+    $customerAddr->setCustomerID($customer->getCustomerID())
       ->setAddressID($address->getAddressID())
       ->setName($input->Customer->Name);
     $test = $app->run('new', $customerAddr);
 
     if (!empty($input->Customer->Order)) {
-
       $inputOrder = $input->Customer->Order;
       $order = $app->getOrder();
-
       $shippingAddressString = explode(',', $inputOrder->ShippingAddress);
       if ($shippingAddressString != $addressString) {
         $shippingAddress = $app->getAddress();
-        if (isset($shippingAddressString[0])) {
-          $shippingAddress->setStreet($shippingAddressString[0]);
-        }
-        $shippingAddress->setStreet2('null');
-        if (isset($shippingAddressString[1])) {
-          $shippingAddress->setCity($shippingAddressString[1]);
-        }
-        if (isset($shippingAddressString[2])) {
-          $shippingAddress->setState($shippingAddressString[2]);
-        }
-        if (isset($shippingAddressString[3])) {
-          $shippingAddress->setZip($shippingAddressString[3]);
-        }
+        $shippingAddress->setStreet($shippingAddressString[0])
+          ->setCity($shippingAddressString[1])
+          ->setState($shippingAddressString[2])
+          ->setZip($shippingAddressString[3]);
         $shippingAddress->setAddressID($app->run('new',$shippingAddress)['addressID']);
-
         $order->setAddressID($shippingAddress->getAddressID());
       } else {
         $order->setAddressID($address->getAddressID());
       }
-
       $order->setCustomerID($customer->getCustomerID());
-
       $order->setDescription($inputOrder->OrderDescription);
-
       if (!empty($inputOrder->OrderItems)) {
         $order->setOrderID($app->run('new', $order)['orderID']);
         foreach ($inputOrder->OrderItems as $item) {
           $detail = $app->getOrderDetail();
-          $detail->setOrderID($order->getOrderID());
-          if (isset($item->Item1->Name)) {
-            $detail->setName($item->Item1->Name);
-          }
-          if (isset($item->Item1->Quantity)) {
-            $detail->setQty($item->Item1->Quantity);
-          }
-          if (isset($item->Item1->CostPerItem)) {
-            $detail->setCost($item->Item1->CostPerItem);
-          }
+          $detail->setOrderID($order->getOrderID())
+            ->setName($item->Item1->Name)
+            ->setQty($item->Item1->Quantity)
+            ->setCost($item->Item1->CostPerItem);
           $detail->setOrderDetailsID($app->run('new', $detail)['orderDetailsID']);
         }
       }
@@ -91,6 +60,4 @@ if (!empty($inputs)) {
 function getName ($i, $string) {
   return explode(' ',$string)[$i];
 }
-
-
 ?>

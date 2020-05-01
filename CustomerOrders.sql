@@ -447,7 +447,7 @@ CREATE PROCEDURE newAddress(
   OUT `@addressID` INT
 )
 BEGIN
-	INSERT INTO Address (Street,Street2,City,State,Zip) VALUES (QUOTE(street),QUOTE(street2),QUOTE(city),QUOTE(state),QUOTE(@zip));
+	INSERT INTO Address (Street,Street2,City,State,Zip) VALUES (QUOTE(street),QUOTE(street2),QUOTE(city),QUOTE(state),QUOTE(zip));
     SELECT LAST_INSERT_ID() into @addressID;
     SELECT @addressID as addressID;
 end ||

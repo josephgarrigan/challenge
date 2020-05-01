@@ -52,7 +52,7 @@ class Address extends baseModel
   }
   public function setZip ($value) {
     if (!is_null($value)) {
-      $this->zip = $value;
+      $this->zip = (int)trim($value);
     }
     return $this;
   }
