@@ -119,4 +119,88 @@ class app
       }
     }
   }
+
+  public function ingestInputObject ($input)
+  {
+    $customer = $this->getCustomer();
+    $customer->setFName(explode(' ', $input->Customer->Name)[0])
+      ->setLName(explode(' ', $input->Customer->Name)[1])
+      ->setEmail('test@email.com');
+    $customer->setCustomerID($this->run('new',$customer)['customerID']);
+    $address = $this->parseInputObjectFillAddress($this->getAddress(),$input->Customer->CardAddress);
+    $address->setAddressID($this->run('new',$address)['addressID']);
+    $customerAddr = $this->getCustomerAddressXRef();
+    $customerAddr->setCustomerID($customer->getCustomerID())
+      ->setAddressID($address->getAddressID())
+      ->setName($input->Customer->Name);
+    $test = $this->run('new', $customerAddr);
+    if (!empty($input->Customer->Order)) {
+      $inputOrder = $input->Customer->Order;
+      $order = $this->getOrder();
+      if ($inputOrder->ShippingAddress != $input->Customer->CardAddress) {
+        $shippingAddress = $this->parseInputObjectFillAddress($this->getAddress(),$inputOrder->ShippingAddress);
+        $shippingAddress->setAddressID($this->run('new',$shippingAddress)['addressID']);
+        $order->setAddressID($shippingAddress->getAddressID());
+      } else {
+        $order->setAddressID($address->getAddressID());
+      }
+      $order->setCustomerID($customer->getCustomerID())
+        ->setDescription($inputOrder->OrderDescription);
+      if (!empty($inputOrder->OrderItems)) {
+        $order->setOrderID($this->run('new', $order)['orderID']);
+        foreach ($inputOrder->OrderItems as $item) {
+          $detail = $this->getOrderDetail();
+          $detail->setOrderID($order->getOrderID())
+            ->setName($item->Item1->Name)
+            ->setQty($item->Item1->Quantity)
+            ->setCost($item->Item1->CostPerItem);
+          $detail->setOrderDetailsID($this->run('new', $detail)['orderDetailsID']);
+        }
+      }
+    }
+  }
+
+  private function parseInputObjectFillAddress($address,$string)
+  {
+    $string = explode(',', $string);
+    $address->setStreet($string[0])
+      ->setCity($string[1])
+      ->setState($string[2])
+      ->setZip($string[3]);
+    return $address;
+  }
+
+  public function getOrdersForCustomerID($customerID, $deepScan = false)
+  {
+    $customerRecord = $this->db->run("getCustomerByID", [$customerID]);
+    $customer = $this->getCustomer();
+    $customer->internalize($customerRecord);
+    if (!is_null($customer->getCustomerID())) {
+      $customer->Orders = [];
+      $orderRecords = $this->db->run("getCustomerOrders", [$customerID]);
+      if (!empty($orderRecords)) {
+        foreach ($orderRecords as $orderRecord) {
+          $order = $this->getOrder();
+          $order->internalize($orderRecord);
+          if (!is_null($order->getOrderID())) {
+            if ($deepScan) {
+              $order->OrderDetails = [];
+              $orderDetailsRecords = $this->db->run("getOrderDetailsByOrderID", [$order->getOrderID()]);
+              if (!empty($orderDetailsRecords)) {
+                foreach ($orderDetailRecords as $orderDetailRecord) {
+                  $orderDetail = $this->getOrderDetail();
+                  $orderDetail->internalize($orderDetailRecord);
+                  if (!is_null($orderDetail->getOrderDetailsID())) {
+                    $order->OrderDetails[] = $orderDetail;
+                  }
+                }
+              }
+            }
+            $customer->Orders[] = $order;
+          }
+        }
+      }
+    }
+    return $customer;
+  }
 }

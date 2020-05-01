@@ -399,14 +399,14 @@ CREATE VIEW InactiveAddress AS
 	  *
 	FROM Address
 	WHERE Active = 0;
-    
+
 CREATE VIEW OrdersForAlert AS
 	SELECT
 		*
-	FROM Orders 
+	FROM Orders
     WHERE Active = 1
 		AND Alert = 0;
-        
+
 delimiter ||
 
 CREATE FUNCTION getCustomerAddressID (
@@ -506,7 +506,9 @@ BEGIN
 	INSERT INTO CustomerAddressXref (CustomerID,AddressID,Name) VALUES (customerID,addressID,QUOTE(name));
 END ||
 
+-- --------------------------------
 -- Update
+-- --------------------------------
 CREATE PROCEDURE updateCustomer(
   IN customerID INT,
   IN fName VARCHAR(255),
@@ -569,6 +571,9 @@ BEGIN
   WHERE AddressID = QUOTE(addressID);
 END ||
 
+-- ------------------------------------
+-- Logic Updates 
+-- ------------------------------------
 CREATE PROCEDURE orderAlerted (
   IN orderID INT
 )
@@ -585,7 +590,7 @@ BEGIN
   UPDATE Orders
     SET Status = 'Accepted',
         Alert = 0
-  WHERE OrderID = QUOTE(orderID);
+  WHERE Orders.OrderID = orderID;
 END ||
 
 CREATE PROCEDURE orderStatusPrepared (
@@ -608,7 +613,9 @@ BEGIN
   WHERE OrderID = QUOTE(orderID);
 END ||
 
+-- ----------------------------------
 -- Delete
+-- ----------------------------------
 CREATE PROCEDURE deleteCustomer (
   IN customerID INT
 )
@@ -658,11 +665,20 @@ BEGIN
     AND AddressID = QUOTE(addressID);
 END ||
 
+-- ---------------------------------
 -- Select
+-- ---------------------------------
+CREATE PROCEDURE getCustomerOrders (
+  IN customerID INT
+)
+BEGIN
+  SELECT * FROM Orders WHERE CustomerID = customerID;
+END || 
+
 CREATE PROCEDURE getOrdersForAlert()
 BEGIN
 	SELECT * FROM OrdersForAlert;
-END || 
+END ||
 
 CREATE PROCEDURE getCustomerByID (
   IN customerID INT
@@ -691,7 +707,17 @@ BEGIN
   SELECT
     *
   FROM OrderDetails
-  WHERE OrderDetailsID = QUOTE(orderDetailsID);
+  WHERE OrderDetailsID = orderDetailsID;
+END ||
+
+CREATE PROCEDURE getOrderDetailsByOrderID (
+  IN orderID INT
+)
+BEGIN
+SELECT
+    *
+  FROM OrderDetails
+  WHERE OrderID = orderID;
 END ||
 
 CREATE PROCEDURE getAddressByID (
@@ -701,7 +727,7 @@ BEGIN
   SELECT
     *
   FROM Address
-  WHERE AddressID = QUOTE(addressID);
+  WHERE AddressID = addressID;
 END ||
 
 CREATE PROCEDURE getOrderMetaDataByID (
