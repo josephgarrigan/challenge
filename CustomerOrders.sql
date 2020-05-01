@@ -517,7 +517,7 @@ CREATE PROCEDURE orderAlerted (
 BEGIN
   UPDATE Orders
     SET Alert = 1
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
 END ||
 
 CREATE PROCEDURE orderStatusAccepted (
@@ -527,7 +527,7 @@ BEGIN
   UPDATE Orders
     SET Status = 'Accepted',
         Alert = 0
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
 END ||
 
 CREATE PROCEDURE orderStatusPrepared (
@@ -537,7 +537,7 @@ BEGIN
   UPDATE Orders
     SET Status = 'Prepared',
         Alert = 0
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
 END ||
 
 CREATE PROCEDURE orderStatusShipped (
@@ -547,7 +547,7 @@ BEGIN
   UPDATE Orders
     SET Status = 'Shipped',
         Alert = 0
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
 END ||
 
 -- Delete
@@ -557,7 +557,7 @@ CREATE PROCEDURE deleteCustomer (
 BEGIN
   UPDATE Customers
     SET Active = 0
-  WHERE CustomerID = customerID;
+  WHERE CustomerID = QUOTE(customerID);
 END ||
 
 CREATE PROCEDURE deleteOrder (
@@ -566,10 +566,10 @@ CREATE PROCEDURE deleteOrder (
 BEGIN
   UPDATE Orders
     SET Active = 0
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
   UPDATE OrderDetails
 	SET Active = 0
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
 END ||
 
 CREATE PROCEDURE deleteOrderDetails (
@@ -578,7 +578,7 @@ CREATE PROCEDURE deleteOrderDetails (
 BEGIN
   UPDATE OrderDetails
     SET Active = 0
-  WHERE OrderDetailsID = orderDetailsID;
+  WHERE OrderDetailsID = QUOTE(orderDetailsID);
 END ||
 
 CREATE PROCEDURE deleteAddress (
@@ -587,7 +587,7 @@ CREATE PROCEDURE deleteAddress (
 BEGIN
   UPDATE Address
     SET Active = 0
-  WHERE AddressID = addressID;
+  WHERE AddressID = QUOTE(addressID);
 END ||
 
 CREATE PROCEDURE deleteCustomerAddressXRef (
@@ -596,8 +596,8 @@ CREATE PROCEDURE deleteCustomerAddressXRef (
 )
 BEGIN
   DELETE FROM CustomerAddressXref
-  WHERE CustomerID = customerID
-    AND AddressID = addressID;
+  WHERE CustomerID = QUOTE(customerID)
+    AND AddressID = QUOTE(addressID);
 END ||
 
 -- Select
@@ -608,7 +608,7 @@ BEGIN
   SELECT
     *
   FROM Customers
-  WHERE CustomerID = customerID;
+  WHERE CustomerID = QUOTE(customerID);
 END ||
 
 CREATE PROCEDURE getOrderByID (
@@ -618,7 +618,7 @@ BEGIN
   SELECT
     *
   FROM Orders
-  WHERE OrderID = orderID;
+  WHERE OrderID = QUOTE(orderID);
 END ||
 
 CREATE PROCEDURE getOrderDetailsByID (
@@ -628,7 +628,7 @@ BEGIN
   SELECT
     *
   FROM OrderDetails
-  WHERE OrderDetailsID = orderDetailsID;
+  WHERE OrderDetailsID = QUOTE(orderDetailsID);
 END ||
 
 CREATE PROCEDURE getAddressByID (
@@ -638,7 +638,7 @@ BEGIN
   SELECT
     *
   FROM Address
-  WHERE AddressID = addressID;
+  WHERE AddressID = QUOTE(addressID);
 END ||
 
 CREATE PROCEDURE getOrderMetaDataByID (
@@ -668,7 +668,7 @@ BEGIN
       ON Orders.CustomerID = Customers.CustomerID
     JOIN Address
       ON Orders.AddressID = Address.AddressID
-  WHERE Orders.OrderID = orderID;
+  WHERE Orders.OrderID = QUOTE(orderID);
 END ||
 
 DELIMITER ;

@@ -66,13 +66,15 @@ class database {
     try {
       $paramString = "";
       if (!empty($params)) {
-        $paramString = implode(',',$params);
+        $paramString = "'".rtrim(implode('\',\'',$params),',')."'";
       }
-      $stmt = $this->db->prepare("CALL $procedure ( $paramString )");
-      $counter = 0;
+      $string = "CALL $procedure ( $paramString )";
+      echo $string . "\r\n";
+      $stmt = $this->db->prepare($string);
+      $counter = 1;
       if (!empty($params)) {
         foreach ($params as $param) {
-          $stmt->bindValue($counter, $param['value'], $param['type']);
+          $stmt->bindValue($counter, $param);
         }
       }
       $stmt->execute();
