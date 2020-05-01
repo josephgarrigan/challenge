@@ -119,7 +119,8 @@ class Address extends baseModel
       $this->getStreet2(),
       $this->getCity(),
       $this->getState(),
-      $this->getZip()
+      $this->getZip(),
+      $this->getAddressID()
     ];
   }
   public function getEditParams()

@@ -22,7 +22,7 @@ class Order extends baseModel
 
   public function setOrderID ($value) {
     if (!is_null($value)) {
-      $this->OrderID = $value;
+      $this->orderID = $value;
     }
     return $this;
   }
@@ -115,9 +115,10 @@ class Order extends baseModel
   public function getNewParams ()
   {
     return [
-      $this->getDescription(),
       $this->getCustomerID(),
-      $this->getAddressID()
+      $this->getAddressID(),
+      $this->getDescription(),
+      $this->getOrderID()
     ];
   }
   public function getEditParams()

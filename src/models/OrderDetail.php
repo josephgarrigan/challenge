@@ -107,7 +107,8 @@ class OrderDetail extends baseModel
       $this->getOrderID(),
       $this->getName(),
       $this->getQty(),
-      $this->getCost()
+      $this->getCost(),
+      $this->getOrderDetailsID()
     ];
   }
   public function getEditParams()

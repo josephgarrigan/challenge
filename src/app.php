@@ -73,9 +73,4 @@ class app
     }
     return $result;
   }
-
-  public function getLastID()
-  {
-    return $this->db->getLastInsertID();
-  }
 }

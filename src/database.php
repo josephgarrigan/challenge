@@ -7,6 +7,7 @@ class database {
   protected $dbname  = null;
   protected $user = null;
   protected $pass = null;
+  protected $lastInsertID = 'Not Set';
   private $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -66,28 +67,16 @@ class database {
     try {
       $paramString = "";
       if (!empty($params)) {
-        $paramString = "'".rtrim(implode('\',\'',$params),',')."'";
+        $paramString = rtrim(implode(',',$params),',');
       }
       $string = "CALL $procedure ( $paramString )";
       echo $string . "\r\n";
-      $stmt = $this->db->prepare($string);
-      $counter = 1;
-      if (!empty($params)) {
-        foreach ($params as $param) {
-          $stmt->bindValue($counter, $param);
-        }
-      }
-      $stmt->execute();
-      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $result = $this->db->query($string);
+      $result = $result->fetch(PDO::FETCH_ASSOC);
     } catch (PDOExcetption $e) {
       $result = $e->getMessage();
     }
     return $result;
-  }
-
-  public function getLastInsertID()
-  {
-    return $this->db->lastinsertID();
   }
 }
 ?>

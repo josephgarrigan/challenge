@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`Orders` (
   `Active` TINYINT,
   `Status` ENUM ('Waiting', 'Accepted', 'Prepared', 'Shipped') NOT NULL DEFAULT 'Waiting',
   `Alert` TINYINT NOT NULL DEFAULT 0,
-  `CreateDate` DATETIME NOT NULL,
+  `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
   `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`OrderID`),
   UNIQUE INDEX `idOrders_UNIQUE` (`OrderID` ASC),
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `CustomerOrders`.`OrderDetails` (
   `Qty` INT NOT NULL,
   `Cost` DECIMAL(12,2) NOT NULL,
   `Active` TINYINT DEFAULT 1,
-  `CreateDate` DATETIME NOT NULL,
+  `CreateDate` DATETIME NOT NULL DEFAULT NOW(),
   `UpdateDate` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`OrderDetailsID`),
   UNIQUE INDEX `idOrders_UNIQUE` (`OrderID` ASC),
@@ -400,43 +400,56 @@ END ||
 
 -- Create
 CREATE PROCEDURE newCustomer(
-  IN fName VARCHAR(45),
-  IN lName VARCHAR(45),
-  IN email VARCHAR(255)
+  IN `@fName` VARCHAR(45),
+  IN `@lName` VARCHAR(45),
+  IN `@email` VARCHAR(255),
+  OUT `@customerID` INT
 )
+NOT DETERMINISTIC NO SQL SQL SECURITY INVOKER
 BEGIN
-	INSERT INTO Customers (FName,LName,Email) VALUES (QUOTE(fName),QUOTE(lName),QUOTE(email));
+	INSERT INTO Customers (FName,LName,Email) VALUES (QUOTE(@fName),QUOTE(@lName),QUOTE(@email));
+    SET @customerID = LAST_INSERT_ID();
+    SELECT @customerID as customerID;
 END ||
 
 CREATE PROCEDURE newOrder(
-  IN description VARCHAR(255),
-  IN customerID INT,
-  IN addressID INT
+  IN `@customerID` INT,
+  IN `@addressID` INT,
+  IN `@description` VARCHAR(255),
+  OUT `@orderID` INT
 )
+NOT DETERMINISTIC NO SQL SQL SECURITY INVOKER
 BEGIN
-	INSERT INTO Orders (Description, CustomerID, AddressID)
-	VALUES (QUOTE(description),QUOTE(customerID),QUOTE(addressID));
+	INSERT INTO Orders (CustomerID, AddressID, Description) VALUES (@customerID, @addressID, QUOTE(@description));
+    SET @orderID = LAST_INSERT_ID();
+    SELECT @orderID as orderID;
 END ||
 
 CREATE PROCEDURE newOrderDetail(
-	IN orderID INT,
-    IN name VARCHAR(255),
-    IN qty INT,
-    IN cost DECIMAL(12,2)
+	IN `@orderID` INT,
+    IN `@name` VARCHAR(255),
+    IN `@qty` INT,
+    IN `@cost` DECIMAL(12,2),
+    OUT `@orderDetailID` INT
 )
 BEGIN
-	INSERT INTO OrderDetails (OrderID, Name, Qty, Cost) VALUES (QUOTE(orderID), QUOTE(name), QUOTE(qty), QUOTE(cost));
+	INSERT INTO OrderDetails (OrderID, Name, Qty, Cost) VALUES (@orderID, QUOTE(@name), @qty, @cost);
+    SET @orderDetailID = LAST_INSERT_ID();
+    SELECT @orderDetailsID as orderDetailsID;
 END ||
 
 CREATE PROCEDURE newAddress(
-  IN street VARCHAR(255),
-  IN street2 VARCHAR(255),
-  IN city VARCHAR(255),
-  IN State VARCHAR(255),
-  IN zip VARCHAR(255)
+  IN `@street` VARCHAR(255),
+  IN `@street2` VARCHAR(255),
+  IN `@city` VARCHAR(255),
+  IN `@state` VARCHAR(255),
+  IN `@zip` VARCHAR(255),
+  OUT `@addressID` INT
 )
 BEGIN
-	insert into Address (Street,Street2,City,State,Zip) VALUES (QUOTE(street),QUOTE(street2),QUOTE(city),QUOTE(State),QUOTE(zip));
+	insert into Address (Street,Street2,City,State,Zip) VALUES (QUOTE(@street),QUOTE(@street2),QUOTE(@city),QUOTE(@state),QUOTE(@zip));
+    SET @addressID = LAST_INSERT_ID();
+    SELECT @addressID as addressID;
 end ||
 
 CREATE PROCEDURE newCustomerAddressXref(
@@ -445,7 +458,7 @@ CREATE PROCEDURE newCustomerAddressXref(
   IN name VARCHAR(255)
 )
 BEGIN
-	INSERT INTO CustomerAddressXref (CustomerID,AddressID,Name) VALUES (QUOTE(customerID),QUOTE(addressID),QUOTE(name));
+	INSERT INTO CustomerAddressXref (CustomerID,AddressID,Name) VALUES (customerID,addressID,QUOTE(name));
 END ||
 
 -- Update

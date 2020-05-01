@@ -95,7 +95,8 @@ class Customer extends baseModel
     return [
       $this->getFName(),
       $this->getLName(),
-      $this->getEmail()
+      $this->getEmail(),
+      $this->getCustomerID()
     ];
   }
   public function getEditParams()
