@@ -362,6 +362,51 @@ CREATE TRIGGER order_detail_txn_trigger
       old.UpdateDate
     );
 
+-- Views
+
+CREATE VIEW ActiveCustomers AS
+  SELECT
+    *
+  FROM Customers
+  WHERE Active = 1;
+
+CREATE VIEW InactiveCustomers AS
+  SELECT
+    *
+  FROM Customers
+  WHERE Active = 0;
+
+CREATE VIEW ActiveOrders AS
+  SELECT
+    *
+  FROM Orders
+  WHERE Active = 1;
+
+CREATE VIEW InactiveOrders AS
+	SELECT
+	*
+	FROM Orders
+	WHERE Active = 0;
+
+CREATE VIEW ActiveAddress AS
+  SELECT
+    *
+  FROM Address
+  WHERE Active = 1;
+
+CREATE VIEW InactiveAddress AS
+	SELECT
+	  *
+	FROM Address
+	WHERE Active = 0;
+    
+CREATE VIEW OrdersForAlert AS
+	SELECT
+		*
+	FROM Orders 
+    WHERE Active = 1
+		AND Alert = 0;
+        
 delimiter ||
 
 CREATE FUNCTION getCustomerAddressID (
@@ -614,6 +659,11 @@ BEGIN
 END ||
 
 -- Select
+CREATE PROCEDURE getOrdersForAlert()
+BEGIN
+	SELECT * FROM OrdersForAlert;
+END || 
+
 CREATE PROCEDURE getCustomerByID (
   IN customerID INT
 )
@@ -685,43 +735,6 @@ BEGIN
 END ||
 
 DELIMITER ;
-
--- Views
-CREATE VIEW ActiveCustomers AS
-  SELECT
-    *
-  FROM Customers
-  WHERE Active = 1;
-
-CREATE VIEW InactiveCustomers AS
-  SELECT
-    *
-  FROM Customers
-  WHERE Active = 0;
-
-CREATE VIEW ActiveOrders AS
-  SELECT
-    *
-  FROM Orders
-  WHERE Active = 1;
-
-CREATE VIEW InactiveOrders AS
-	SELECT
-	*
-	FROM Orders
-	WHERE Active = 0;
-
-CREATE VIEW ActiveAddress AS
-  SELECT
-    *
-  FROM Address
-  WHERE Active = 1;
-
-CREATE VIEW InactiveAddress AS
-	SELECT
-	  *
-	FROM Address
-	WHERE Active = 0;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

@@ -73,4 +73,50 @@ class app
     }
     return $result;
   }
+
+  public function progressStatus (Order $order, $newStatus)
+  {
+    $method = null;
+    $result = null;
+    if (!is_null($order->getOrderID())) {
+      switch ($newStatus) {
+        case 'Accepted':
+          $method = "orderStatusAccepted";
+          break;
+        case 'Prepared':
+          $method = "orderStatusPrepared";
+          break;
+        case 'Shipped':
+          $method = "orderStatusShipped";
+          break;
+      }
+      if (!is_null($method)) {
+        $result = $this->db->run($method, [$order->getOrderID()]);
+      }
+      return $result;
+    }
+  }
+
+  public function alert()
+  {
+    $records = $this->db->run("getOrdersForAlert");
+    if (!empty($records)) {
+      foreach ($records as $record) {
+        $order = new Orders();
+        $order->internalize($record);
+        switch ($order->getStatus()) {
+          case 'Accepted':
+            //todo some logic to send newly accepted orders
+            break;
+          case 'Prepared':
+            //todo see above for Prepared
+            break;
+          case 'Shipped':
+            //todo see above for orderStatus
+            break;
+        }
+        $this->db->run("orderAlerted", [$order->getOrderID()]);
+      }
+    }
+  }
 }
